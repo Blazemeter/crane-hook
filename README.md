@@ -1,6 +1,6 @@
 # crane-testhook
 
-A Kubernetes cluster requirements checker for Blazemeter Private Locations. This tool verifies node resources, network connectivity, RBAC, and ingress configuration to ensure your cluster is ready to deploy Blazemeter workloads.
+A Kubernetes cluster requirements checker for Blazemeter Private Locations. This tool verifies node resources, network connectivity, RBAC, and ingress configuration to ensure your cluster is ready to deploy Blazemeter workloads
 
 ## Features
 
