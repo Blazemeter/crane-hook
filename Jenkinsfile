@@ -1,7 +1,7 @@
 @Library('jenkins_library')
 import com.blazemeter.jenkins.lib.DockerTag
 
-IMAGE_NAME = 'us.gcr.io/verdant-bulwark-278/crane-hook'
+IMAGE_NAME = 'crane-hook'
 
 pipeline {
     agent {
@@ -26,11 +26,12 @@ pipeline {
                 script {
                     initJenkinsGlobal()
                     String buildDate = new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))
-                    //currentBuild.displayName = "#${buildDate}"
                     env.BUILD_TIMESTAMP_ID = buildDate
-                    def branch = env.BRANCH_NAME ?: params.BRANCH_NAME_PARAM ?: 'main'
-                    //env.UNIFIED_BRANCH_NAME = env.BRANCH_NAME.replaceAll("/", "_")
-                    env.TAG = (env.BRANCH_NAME == "main") ? "latest" : env.BRANCH_NAME
+                    def branchName = env.BRANCH_NAME ?: params.BRANCH_NAME_PARAM ?: 'main'
+                    env.BRANCH_NAME = branchName
+                    env.TAG = (branchName == "main") ? "latest" : env.BRANCH_NAME
+        
+                    echo "Set TAG=${env.TAG}"
                 }
             }
         }
@@ -56,7 +57,7 @@ pipeline {
                     export GOOS=linux
                     export GOARCH=amd64
                     go version
-                    go build -o cranehook ../.
+                    go build -o cranehook
                 '''
             }
         }        
@@ -68,7 +69,7 @@ pipeline {
                     def tags = new DockerTag()
                     tags.addTag("${env.TAG}")
                     tags.addTag("${env.BRANCH_NAME}-${env.BUILD_NUMBER}")
-
+                    echo "Docker image will be tagged as: ${IMAGE_NAME}:${env.TAG}"
                     pushImageToAllRegistries("${IMAGE_NAME}", "${IMAGE_NAME}", tags)
                 }
             }
