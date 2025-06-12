@@ -28,9 +28,9 @@ pipeline {
                     String buildDate = new Date().format("yyyyMMddHHmmss", TimeZone.getTimeZone('UTC'))
                     //currentBuild.displayName = "#${buildDate}"
                     env.BUILD_TIMESTAMP_ID = buildDate
-
-                    env.UNIFIED_BRANCH_NAME = env.BRANCH_NAME.replaceAll("/", "_")
-                    env.TAG = (env.BRANCH_NAME == "main") ? "latest" : env.UNIFIED_BRANCH_NAME
+                    def branch = env.BRANCH_NAME ?: params.BRANCH_NAME_PARAM ?: 'main'
+                    //env.UNIFIED_BRANCH_NAME = env.BRANCH_NAME.replaceAll("/", "_")
+                    env.TAG = (env.BRANCH_NAME == "main") ? "latest" : env.BRANCH_NAME
                 }
             }
         }
@@ -41,7 +41,7 @@ pipeline {
                 script {
                     def tags = new DockerTag()
                     tags.addTag("${env.TAG}")
-                    tags.addTag("${env.UNIFIED_BRANCH_NAME}-${env.BUILD_NUMBER}")
+                    tags.addTag("${env.BRANCH_NAME}-${env.BUILD_NUMBER}")
 
                     pushImageToAllRegistries("${IMAGE_NAME}", "${IMAGE_NAME}", tags)
                 }
