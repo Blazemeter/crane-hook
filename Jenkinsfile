@@ -35,12 +35,28 @@ pipeline {
             }
         }
 
+        stage('Install Go') {
+            steps {
+                sh '''
+                    echo "Installing Go locally..."
+                    curl -sSL https://golang.org/dl/go1.21.6.linux-amd64.tar.gz -o go.tar.gz
+                    mkdir -p $WORKSPACE/go
+                    tar -C $WORKSPACE/go --strip-components=1 -xzf go.tar.gz
+                    rm go.tar.gz
+                '''
+            }
+        }
+
         stage('Build Go Binary') {
             steps {
                 sh '''
-                    echo "Setting Go environment variables and building binary..."
-                    go env -w GOOS=linux GOARCH=amd64
-                    go build -o cranehook
+                    echo "Building Go binary..."
+                    export GOROOT=$WORKSPACE/go
+                    export PATH=$GOROOT/bin:$PATH
+                    export GOOS=linux
+                    export GOARCH=amd64
+                    go version
+                    go build -o cranehook ../.
                 '''
             }
         }        
