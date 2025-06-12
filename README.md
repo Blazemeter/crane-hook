@@ -22,7 +22,7 @@ To build the binary for Linux/amd64:
 
 ```sh
 go env -w GOOS=linux GOARCH=amd64
-go build -o cranetest .
+go build -o cranehook .
 ```
 
 Or use the provided build script and Dockerfile:
@@ -41,7 +41,7 @@ cd containerImage
 ./build.sh
 ```
 
-This will build the binary, create a Docker image, and push it to Docker Hub as `immnan/cranetest`.
+This will build the binary, create a Docker image, and push it to Docker Hub as `immnan/cranehook`.
 You can replace the image repository to your private registry on cloud, if required. 
 
 ## Usage

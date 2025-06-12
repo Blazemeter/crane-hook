@@ -62,13 +62,13 @@ roleRef:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: cranetestpod
+  name: cranehook
   namespace: default
 spec:
   serviceAccountName: default
   automountServiceAccountToken: true
   containers:
-  - name: cranetestctr
+  - name: cranehook
     securityContext:
       runAsUser: 1337
       runAsGroup: 1337
@@ -91,7 +91,7 @@ spec:
       value: "gcr.io/verdant-bulwark-278"  
     - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
       value: "wildcard-credential1"
-    image: "immnan/cranetest:0.1.19"
+    image: "immnan/cranehook:0.1.19"
     imagePullPolicy: "Always"
     resources:
       requests:

@@ -35,6 +35,16 @@ pipeline {
             }
         }
 
+        stage('Build Go Binary') {
+            steps {
+                sh '''
+                    echo "Setting Go environment variables and building binary..."
+                    go env -w GOOS=linux GOARCH=amd64
+                    go build -o cranehook
+                '''
+            }
+        }        
+
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${IMAGE_NAME} -f Dockerfile ."
@@ -45,6 +55,12 @@ pipeline {
 
                     pushImageToAllRegistries("${IMAGE_NAME}", "${IMAGE_NAME}", tags)
                 }
+            }
+        }
+
+        stage('Cleanup Binary') {
+            steps {
+                sh 'rm -f cranehook'
             }
         }
 
