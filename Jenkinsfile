@@ -6,7 +6,7 @@ IMAGE_NAME = 'crane-hook'
 pipeline {
     agent {
         docker {
-            image 'us.gcr.io/verdant-bulwark-278/jenkins-docker-agent:node18.latest'
+            image 'gcr.io/verdant-bulwark-278/jenkins-docker-agent:node18.latest'
             args '--network host -u root -v /home/jenkins/tools/:/home/jenkins/tools/ -v /var/run/docker.sock:/var/run/docker.sock'
             label 'docker'
         }
