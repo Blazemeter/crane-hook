@@ -1,12 +1,15 @@
 @Library('jenkins_library')
 import com.blazemeter.jenkins.lib.DockerTag
 
-IMAGE_NAME = 'crane-hook'
+def REGISTRY = "gcr.io"
+def PROJECT_ID = "verdant-bulwark-278"
+def IMAGE_NAME = "cranehook"
+def COMPONENT_NAME = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}"
 
 pipeline {
     agent {
         docker {
-            image 'gcr.io/verdant-bulwark-278/jenkins-docker-agent:node18.latest'
+            image 'us.gcr.io/verdant-bulwark-278/jenkins-docker-agent:node18.latest'
             args '--network host -u root -v /home/jenkins/tools/:/home/jenkins/tools/ -v /var/run/docker.sock:/var/run/docker.sock'
             label 'docker'
         }
@@ -64,13 +67,13 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME} -f Dockerfile ."
+                sh "docker build -t ${COMPONENT_NAME}:${env.TAG} -f Dockerfile ."
                 script {
                     def tags = new DockerTag()
                     tags.addTag("${env.TAG}")
                     tags.addTag("${env.BRANCH_NAME}-${env.BUILD_NUMBER}")
-                    echo "Docker image will be tagged as: ${IMAGE_NAME}:${env.TAG}"
-                    pushImageToAllRegistries("${IMAGE_NAME}", "${IMAGE_NAME}", tags)
+                    echo "Docker image will be tagged as: ${COMPONENT_NAME}:${env.TAG}"
+                    pushImageToAllPublicRegistries(COMPONENT_NAME, IMAGE_NAME, tags)
                 }
             }
         }
