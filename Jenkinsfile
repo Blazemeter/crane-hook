@@ -1,14 +1,7 @@
 @Library('jenkins_library')
 import com.blazemeter.jenkins.lib.DockerTag
 
-def REGISTRY = "gcr.io"
-def FALLBACK_REGISTRY = "us.gcr.io"
-def PROJECT_ID = "verdant-bulwark-278"
-def IMAGE_NAME = "cranehook"
-def IMAGE_TAG = "${env.TAG}"
-def IMAGE_FULL = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
-def IMAGE_FOR_HELPER = "${FALLBACK_REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}:${IMAGE_TAG}"
-def COMPONENT_NAME = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}"
+IMAGE_NAME = 'cranehook'
 
 pipeline {
     agent {
@@ -71,14 +64,13 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_FULL} -f Dockerfile ."
-                sh "docker tag ${IMAGE_FULL} ${IMAGE_FOR_HELPER}"
+                sh "docker build -t ${IMAGE_NAME} -f Dockerfile ."
                 script {
                     def tags = new DockerTag()
-                    tags.addTag("${IMAGE_TAG}")
+                    tags.addTag("${env.TAG}")
                     tags.addTag("${env.BRANCH_NAME}-${env.BUILD_NUMBER}")
-                    echo "Docker image will be tagged as: ${IMAGE_FOR_HELPER}"
-                    pushImageToAllPublicRegistries(IMAGE_FOR_HELPER, IMAGE_NAME, tags)
+                    echo "Docker image will be tagged as: ${IMAGE_NAME}:${env.TAG}"
+                    pushImageToAllRegistries("${IMAGE_NAME}", "${IMAGE_NAME}", tags)
                 }
             }
         }
