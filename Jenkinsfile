@@ -118,6 +118,23 @@ pipeline {
     post {
         cleanup {
             cleanWs()
+            script {
+                def REGISTRY = "gcr.io"
+                def PROJECT_ID = "verdant-bulwark-278"
+                def IMAGE_NAME = "cranehook"
+                def VERSION_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                def LATEST_TAG = "latest"
+    
+                def BASE_IMAGE = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}"
+                def IMAGE_WITH_VERSION = "${BASE_IMAGE}:${VERSION_TAG}"
+                def IMAGE_LATEST = "${BASE_IMAGE}:${LATEST_TAG}"
+    
+                // Remove both tags locally (ignore errors if image doesn't exist)
+                sh """
+                    docker rmi -f ${IMAGE_WITH_VERSION} || true
+                    docker rmi -f ${IMAGE_LATEST} || true
+                """
+            }
         }
         failure {
             // Send an email if the build fails
