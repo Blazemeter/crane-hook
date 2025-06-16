@@ -69,11 +69,15 @@ pipeline {
                     def REGISTRY = "gcr.io"
                     def PROJECT_ID = "verdant-bulwark-278"
                     def IMAGE_NAME = "cranehook"
-                    def TAG = env.TAG ?: "latest"
-                    def FULL_IMAGE = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}:${TAG}"
+                    def VERSION_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    def LATEST_TAG = "latest"
+                    def BASE_IMAGE = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}"
+                    def IMAGE_WITH_VERSION = "${BASE_IMAGE}:${VERSION_TAG}"
+                    def IMAGE_LATEST = "${BASE_IMAGE}:${LATEST_TAG}"
 
                     // Build the Docker image
-                    sh "docker build -t ${FULL_IMAGE} -f Dockerfile ."
+                    sh "docker build -t ${IMAGE_WITH_VERSION} -f Dockerfile ."
+                    sh "docker tag ${IMAGE_WITH_VERSION} ${IMAGE_LATEST}"
 
                     // Authenticate to gcr.io using service account key
                     sh '''
@@ -83,9 +87,10 @@ pipeline {
                     '''
 
                     // Push the image
-                    sh "docker push ${FULL_IMAGE}"
+                    sh "docker push ${IMAGE_WITH_VERSION}"
+                    sh "docker push ${IMAGE_LATEST}"
 
-                    echo "Docker image pushed to: ${FULL_IMAGE}"
+                    echo "Pushed image: ${IMAGE_WITH_VERSION} and ${IMAGE_LATEST}"
                     }
                 }
             }
