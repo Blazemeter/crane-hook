@@ -64,13 +64,29 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME} -f Dockerfile ."
+                withCredentials([file(credentialsId: 'gcr-pull-secret-json', variable: 'GCP_KEY_FILE')]) {
                 script {
-                    def tags = new DockerTag()
-                    tags.addTag("${env.TAG}")
-                    tags.addTag("${env.BRANCH_NAME}-${env.BUILD_NUMBER}")
-                    echo "Docker image will be tagged as: ${IMAGE_NAME}:${env.TAG}"
-                    pushImageToAllRegistries("${IMAGE_NAME}", "${IMAGE_NAME}", tags)
+                    def REGISTRY = "gcr.io"
+                    def PROJECT_ID = "verdant-bulwark-278"
+                    def IMAGE_NAME = "cranehook"
+                    def TAG = env.TAG ?: "latest"
+                    def FULL_IMAGE = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}:${TAG}"
+
+                    // Build the Docker image
+                    sh "docker build -t ${FULL_IMAGE} -f Dockerfile ."
+
+                    // Authenticate to gcr.io using service account key
+                    sh '''
+                        echo "Authenticating to gcr.io..."
+                        gcloud auth activate-service-account --key-file=$GCP_KEY_FILE
+                        gcloud auth configure-docker gcr.io --quiet
+                    '''
+
+                    // Push the image
+                    sh "docker push ${FULL_IMAGE}"
+
+                    echo "Docker image pushed to: ${FULL_IMAGE}"
+                    }
                 }
             }
         }
