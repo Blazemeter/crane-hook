@@ -25,25 +25,6 @@ go env -w GOOS=linux GOARCH=amd64
 go build -o cranehook .
 ```
 
-Or use the provided build script and Dockerfile:
-
-```sh
-cd containerImage
-./build.sh
-```
-
-## Docker
-
-Build and push the Docker image:
-
-```sh
-cd containerImage
-./build.sh
-```
-
-This will build the binary, create a Docker image, and push it to Docker Hub as `immnan/cranehook`.
-You can replace the image repository to your private registry on cloud, if required. 
-
 ## Usage
 
 ### As a helm test hook
