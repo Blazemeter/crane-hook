@@ -43,8 +43,10 @@ See [`kubernetes/teshook.yaml`](kubernetes/teshook.yaml) for an example manifest
 kubectl apply -f kubernetes/teshook.yaml
 ```
 
-
 The pod will run the checks and exit with code 0 if all requirements are met, or 1 if any check fails.
+
+**NOTE**
+- If you deploy crane-hook manually, with `kubectl apply` method, make sure the environment variables are set correctly as per the type of crane installation. See Environment Variables below.
 
 ## Environment Variables
 
