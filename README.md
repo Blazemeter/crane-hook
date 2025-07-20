@@ -37,10 +37,10 @@ This will automatically test the installation.
 
 ### As a Kubernetes Pod
 
-See [`kubernetes/teshook.yaml`](kubernetes/teshook.yaml) for an example manifest. Apply it with:
+See [`kubernetes/cranehook.yaml`](kubernetes/cranehook.yaml) for an example manifest. Apply it with:
 
 ```sh
-kubectl apply -f kubernetes/teshook.yaml
+kubectl apply -f kubernetes/cranehook.yaml
 ```
 
 The pod will run the checks and exit with code 0 if all requirements are met, or 1 if any check fails.
@@ -67,8 +67,3 @@ The pod will run the checks and exit with code 0 if all requirements are met, or
 - `[error]` messages indicate failed checks
 - Exit code 0: all checks passed
 - Exit code 1: one or more checks failed (the logs would list the failures/errors)
-
-
-## License
-
-Apache 2.0. See [LICENSE](LICENSE).
