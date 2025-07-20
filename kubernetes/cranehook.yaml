@@ -1,8 +1,12 @@
+# Source: helm-crane/templates/tests/testrbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: crane-get-rolebindings
+  name: test-hookrole
   namespace: default
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": before-hook-creation
 rules:
 - apiGroups: ["rbac.authorization.k8s.io"]
   resources: ["rolebindings", "roles"]
@@ -17,63 +21,46 @@ rules:
   resources: ["virtualservices", "destinationrules", "gateways", "serviceentries"]
   verbs: ["get", "list"]
 ---
-
+# Source: helm-crane/templates/tests/testrbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: crane-get-rolebindings-binding
+  name:  test-hookrole-binding-default
   namespace: default
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": before-hook-creation
 subjects:
 - kind: ServiceAccount
   name: default
   namespace: default
 roleRef:
   kind: Role
-  name: crane-get-rolebindings
-  apiGroup: rbac.authorization.k8s.io
----  
-
-# If istio-ingress is the ingress type 
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: secret-reader
-  namespace: istio-ingress
-rules:
-- apiGroups: [""]
-  resources: ["secrets"]
-  verbs: ["get", "list"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: secret-reader-binding
-  namespace: istio-ingress
-subjects:
-- kind: ServiceAccount
-  name: default           # or your custom SA name
-  namespace: default      # your pod's namespace
-roleRef:
-  kind: Role
-  name: secret-reader
+  name:  test-hookrole
   apiGroup: rbac.authorization.k8s.io
 ---
-
+# Source: helm-crane/templates/tests/testhook.yaml
 apiVersion: v1
 kind: Pod
 metadata:
   name: cranehook
   namespace: default
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-container-name": cranetest-ctr
+    "sidecar.istio.io/inject": "false"
 spec:
   serviceAccountName: default
   automountServiceAccountToken: true
+  #ttlSecondsAfterFinished: 90
   containers:
   - name: cranehook-ctr
     securityContext:
       runAsUser: 1337
       runAsGroup: 1337
       allowPrivilegeEscalation: false
-      runAsNonRoot: true  
+      runAsNonRoot: true
     env: 
     - name: WORKING_NAMESPACE
       value: <namespace>
@@ -93,9 +80,15 @@ spec:
     imagePullPolicy: "Always"
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "100m"
+        cpu: 100m
+        memory: 256Mi
       limits:
-        memory: "512Mi"
-        cpu: "250m"
-  restartPolicy: "Always"
+        cpu: 200m
+        memory: 512Mi
+    volumeMounts:
+      - name: testhook-tmp
+        mountPath: /tmp/testhook
+  volumes:
+    - name: testhook-tmp
+      emptyDir: {}
+  restartPolicy: "Never"
