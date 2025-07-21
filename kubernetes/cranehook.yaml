@@ -62,6 +62,7 @@ spec:
       allowPrivilegeEscalation: false
       runAsNonRoot: true
     env: 
+    #Check ENV used in the ReadMe
     - name: WORKING_NAMESPACE
       value: <namespace>
     - name: ROLE_NAME
