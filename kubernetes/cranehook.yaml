@@ -1,3 +1,4 @@
+# Source: helm-crane/templates/tests/testrbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -42,7 +43,7 @@ roleRef:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: cranetesthook
+  name: cranehook
   namespace: default
   annotations:
     "helm.sh/hook": test
@@ -54,28 +55,29 @@ spec:
   automountServiceAccountToken: true
   #ttlSecondsAfterFinished: 90
   containers:
-  - name: cranetest-ctr
+  - name: cranehook-ctr
     securityContext:
       runAsUser: 1337
       runAsGroup: 1337
       allowPrivilegeEscalation: false
       runAsNonRoot: true
-    env:
+    env: 
+    #Check ENV used in the ReadMe
     - name: WORKING_NAMESPACE
-      value: "default"
+      value: <namespace>
     - name: ROLE_NAME
-      value: crane-role
+      value: <role-name>
     - name: ROLE_BINDING_NAME
-      value: crane-role-binding-default
+      value: <role-binding-name>
     - name: SERVICE_ACCOUNT_NAME
-      value: default
+      value: <service-account-name>
     - name: KUBERNETES_WEB_EXPOSE_TYPE
-      value: "INGRESS"
-    - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
-      value: "wildcard-credential1"
+      value: <ingress-type>
     - name: DOCKER_REGISTRY
-      value: "gcr.io/verdant-bulwark-278"
-    image: gcr.io/verdant-bulwark-278/cranehook:latest
+      value: "gcr.io/verdant-bulwark-278"  
+    - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
+      value: <tls-secret-name>
+    image: "gcr.io/verdant-bulwark-278/cranehook:latest"
     imagePullPolicy: "Always"
     resources:
       requests:
