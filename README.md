@@ -4,10 +4,11 @@ A Kubernetes cluster requirements checker for Blazemeter Private Locations. This
 
 ## Features
 
-- Checks node CPU, memory, and storage capacity
+- Checks all nodes in the cluster for CPU, memory, and storage capacity
 - Verifies network access to Blazemeter, Docker registry, and third-party endpoints
 - Validates Kubernetes RBAC roles and bindings
-- Confirms ingress or Istio gateway setup and TLS secret presence
+- Confirms ingress or Istio configuration/deployment, gateway setup and TLS secret presence (for SV based OPLs)
+- Validates if a loadbalancer is configured correctly and accessible through an external IP (for SV based OPLs)
 - Designed to run as a Kubernetes Pod
 
 
