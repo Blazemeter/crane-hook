@@ -87,21 +87,24 @@ spec:
     env: 
     #Check ENV used in the ReadMe
     - name: WORKING_NAMESPACE
-      value: <namespace>
+      value: default
     - name: ROLE_NAME
-      value: <role-name>
+      value: basic
     - name: ROLE_BINDING_NAME
-      value: <role-binding-name>
+      value: basic-binding
     - name: SERVICE_ACCOUNT_NAME
-      value: <service-account-name>
-    - name: KUBERNETES_WEB_EXPOSE_TYPE
-      value: <ingress-type>
+      value: default
+    #- name: KUBERNETES_WEB_EXPOSE_TYPE
+    #  value: <ingress-type>
     - name: DOCKER_REGISTRY
       value: "gcr.io/verdant-bulwark-278"  
-    - name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
-      value: <tls-secret-name>
-    image: "gcr.io/verdant-bulwark-278/cranehook:latest"
-    imagePullPolicy: "Always"
+    - name: KUBERNETES_NODE_SELECTOR_JSON
+      value: >-{"node1": "value1"}
+  
+    #- name: KUBERNETES_WEB_EXPOSE_TLS_SECRET_NAME
+    #  value: <tls-secret-name>
+    image: "local/cranehook:latest"
+    imagePullPolicy: "Never"
     resources:
       requests:
         cpu: 100m
