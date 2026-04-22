@@ -43,7 +43,8 @@ pipeline {
                     def REGISTRY = "gcr.io"
                     def PROJECT_ID = "verdant-bulwark-278"
                     def IMAGE_NAME = "cranehook"
-                    def VERSION_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    def SAFE_BRANCH_NAME = env.BRANCH_NAME.replaceAll(/[^a-zA-Z0-9_.-]/, '-')
+                    def VERSION_TAG = "${SAFE_BRANCH_NAME}-${env.BUILD_NUMBER}"
                     def LATEST_TAG = "latest"
                     def BASE_IMAGE = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}"
                     def IMAGE_WITH_VERSION = "${BASE_IMAGE}:${VERSION_TAG}"
@@ -83,7 +84,7 @@ pipeline {
             steps {
                 script {
                     def projectName = "${IMAGE_NAME}"
-                    whiteSourceScan("${IMAGE_NAME}", params.BRANCH_NAME_PARAM)
+                    whiteSourceScan("${IMAGE_NAME}", env.BRANCH_NAME)
                 }
             }
         }
@@ -96,7 +97,8 @@ pipeline {
                 def REGISTRY = "gcr.io"
                 def PROJECT_ID = "verdant-bulwark-278"
                 def IMAGE_NAME = "cranehook"
-                def VERSION_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                def SAFE_BRANCH_NAME = env.BRANCH_NAME.replaceAll(/[^a-zA-Z0-9_.-]/, '-')
+                def VERSION_TAG = "${SAFE_BRANCH_NAME}-${env.BUILD_NUMBER}"
                 def LATEST_TAG = "latest"
     
                 def BASE_IMAGE = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}"
