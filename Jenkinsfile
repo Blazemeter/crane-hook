@@ -36,32 +36,6 @@ pipeline {
             }
         }
 
-        stage('Install Go') {
-            steps {
-                sh '''
-                    echo "Installing Go locally..."
-                    curl -sSL https://golang.org/dl/go1.21.6.linux-amd64.tar.gz -o go.tar.gz
-                    mkdir -p $WORKSPACE/go
-                    tar -C $WORKSPACE/go --strip-components=1 -xzf go.tar.gz
-                    rm go.tar.gz
-                '''
-            }
-        }
-
-        stage('Build Go Binary') {
-            steps {
-                sh '''
-                    echo "Building Go binary..."
-                    export GOROOT=$WORKSPACE/go
-                    export PATH=$GOROOT/bin:$PATH
-                    export GOOS=linux
-                    export GOARCH=amd64
-                    go version
-                    go build -o cranehook
-                '''
-            }
-        }        
-
         stage('Build Docker Image') {
             steps {
                 withCredentials([file(credentialsId: 'gcr-pull-secret-json', variable: 'GCP_KEY_FILE')]) {

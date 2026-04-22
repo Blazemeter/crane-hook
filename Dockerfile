@@ -1,8 +1,22 @@
 
-FROM --platform=linux/amd64 alpine:latest
+FROM --platform=linux/amd64 golang:1.26.2-alpine AS builder
+
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -trimpath -ldflags="-s -w" -o /out/cranehook .
+
+FROM --platform=linux/amd64 alpine:3.22 AS certs
+RUN apk --no-cache add ca-certificates
+
+FROM --platform=linux/amd64 scratch
 
 WORKDIR /usr/local/bin
-COPY cranehook .
+COPY --from=builder /out/cranehook /usr/local/bin/cranehook
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 # Set environment variables
 ENV WORKING_NAMESPACE=""
@@ -18,11 +32,6 @@ ENV HTTP_PROXY=""
 ENV HTTPS_PROXY=""
 ENV NO_PROXY=""
 
-# Create a non-root user and group
-RUN addgroup -g 1337 -S appgroup && adduser -u 1337 -S appuser -G appgroup \
-    && chown appuser:appgroup /usr/local/bin/cranehook \
-    && chmod +x /usr/local/bin/cranehook
-
-USER appuser
+USER 65532:65532
 
 CMD ["/usr/local/bin/cranehook"]
