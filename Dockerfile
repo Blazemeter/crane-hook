@@ -1,18 +1,21 @@
 
 FROM --platform=linux/amd64 golang:1.26.2-alpine AS builder
 
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
     go build -trimpath -ldflags="-s -w" -o /out/cranehook .
 
-FROM --platform=linux/amd64 alpine:3.22 AS certs
+FROM alpine:3.22 AS certs
 RUN apk --no-cache add ca-certificates
 
-FROM --platform=linux/amd64 scratch
+FROM scratch
 
 WORKDIR /usr/local/bin
 COPY --from=builder /out/cranehook /usr/local/bin/cranehook
