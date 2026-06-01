@@ -36,32 +36,6 @@ pipeline {
             }
         }
 
-        stage('Install Go') {
-            steps {
-                sh '''
-                    echo "Installing Go locally..."
-                    curl -sSL https://golang.org/dl/go1.21.6.linux-amd64.tar.gz -o go.tar.gz
-                    mkdir -p $WORKSPACE/go
-                    tar -C $WORKSPACE/go --strip-components=1 -xzf go.tar.gz
-                    rm go.tar.gz
-                '''
-            }
-        }
-
-        stage('Build Go Binary') {
-            steps {
-                sh '''
-                    echo "Building Go binary..."
-                    export GOROOT=$WORKSPACE/go
-                    export PATH=$GOROOT/bin:$PATH
-                    export GOOS=linux
-                    export GOARCH=amd64
-                    go version
-                    go build -o cranehook
-                '''
-            }
-        }        
-
         stage('Build Docker Image') {
             steps {
                 withCredentials([file(credentialsId: 'gcr-pull-secret-json', variable: 'GCP_KEY_FILE')]) {
@@ -69,7 +43,8 @@ pipeline {
                     def REGISTRY = "gcr.io"
                     def PROJECT_ID = "verdant-bulwark-278"
                     def IMAGE_NAME = "cranehook"
-                    def VERSION_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    def SAFE_BRANCH_NAME = env.BRANCH_NAME.replaceAll(/[^a-zA-Z0-9_.-]/, '-')
+                    def VERSION_TAG = "${SAFE_BRANCH_NAME}-${env.BUILD_NUMBER}"
                     def LATEST_TAG = "latest"
                     def BASE_IMAGE = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}"
                     def IMAGE_WITH_VERSION = "${BASE_IMAGE}:${VERSION_TAG}"
@@ -109,7 +84,7 @@ pipeline {
             steps {
                 script {
                     def projectName = "${IMAGE_NAME}"
-                    whiteSourceScan("${IMAGE_NAME}", params.BRANCH_NAME_PARAM)
+                    whiteSourceScan("${IMAGE_NAME}", env.BRANCH_NAME)
                 }
             }
         }
@@ -122,7 +97,8 @@ pipeline {
                 def REGISTRY = "gcr.io"
                 def PROJECT_ID = "verdant-bulwark-278"
                 def IMAGE_NAME = "cranehook"
-                def VERSION_TAG = "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                def SAFE_BRANCH_NAME = env.BRANCH_NAME.replaceAll(/[^a-zA-Z0-9_.-]/, '-')
+                def VERSION_TAG = "${SAFE_BRANCH_NAME}-${env.BUILD_NUMBER}"
                 def LATEST_TAG = "latest"
     
                 def BASE_IMAGE = "${REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}"
